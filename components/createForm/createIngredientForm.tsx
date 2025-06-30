@@ -1,262 +1,102 @@
 "use client";
+import { useActionState } from "react";
+import { saveIngredient } from "@/lib/actions/ingredientsAction";
+import { SubmitButton } from "@/components/button";
 
-import { useState, useTransition } from "react";
-import { saveRecipeIngredient } from "@/lib/actions/recipeIngredient";
+const initialState = {
+  Error: {},
+};
 
-interface Ingredient {
-  id: string;
-  name: string;
-  price: number;
-  measureUnit: string;
-  baseAmount: number;
-}
-
-interface Recipe {
-  id: string;
-  name: string;
-}
-
-interface CreateRecipeIngredientFormProps {
-  recipes: Recipe[];
-  ingredients: Ingredient[];
-}
-
-interface IngredientEntry {
-  ingredientId: string;
-  amount: number;
-}
-
-export default function CreateRecipeIngredientForm({
-  recipes,
-  ingredients,
-}: CreateRecipeIngredientFormProps) {
-  const [selectedRecipeId, setSelectedRecipeId] = useState("");
-  const [ingredientEntries, setIngredientEntries] = useState<IngredientEntry[]>([
-    { ingredientId: "", amount: 0 },
-  ]);
-  const [errors, setErrors] = useState<string[]>([]);
-  const [isPending, startTransition] = useTransition();
-
-  const addIngredientEntry = () => {
-    setIngredientEntries([
-      ...ingredientEntries,
-      { ingredientId: "", amount: 0 },
-    ]);
-  };
-
-  const removeIngredientEntry = (index: number) => {
-    if (ingredientEntries.length > 1) {
-      setIngredientEntries(ingredientEntries.filter((_, i) => i !== index));
-    }
-  };
-
-  const updateIngredientEntry = (
-    index: number,
-    field: keyof IngredientEntry,
-    value: string | number
-  ) => {
-    const updatedEntries = ingredientEntries.map((entry, i) =>
-      i === index ? { ...entry, [field]: value } : entry
-    );
-    setIngredientEntries(updatedEntries);
-  };
-
-  const validateForm = () => {
-    const newErrors: string[] = [];
-
-    if (!selectedRecipeId) {
-      newErrors.push("Please select a recipe");
-    }
-
-    ingredientEntries.forEach((entry, index) => {
-      if (!entry.ingredientId) {
-        newErrors.push(`Please select an ingredient for entry ${index + 1}`);
-      }
-      if (entry.amount <= 0) {
-        newErrors.push(`Amount must be positive for entry ${index + 1}`);
-      }
-    });
-
-    // Check for duplicate ingredients
-    const ingredientIds = ingredientEntries
-      .map((entry) => entry.ingredientId)
-      .filter((id) => id !== "");
-    const uniqueIds = new Set(ingredientIds);
-    if (ingredientIds.length !== uniqueIds.size) {
-      newErrors.push("Duplicate ingredients are not allowed");
-    }
-
-    setErrors(newErrors);
-    return newErrors.length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    startTransition(async () => {
-      const results = [];
-      
-      for (const entry of ingredientEntries) {
-        if (entry.ingredientId && entry.amount > 0) {
-          const formData = new FormData();
-          formData.append("recipeId", selectedRecipeId);
-          formData.append("ingredientId", entry.ingredientId);
-          formData.append("amount", entry.amount.toString());
-
-          const result = await saveRecipeIngredient(null, formData);
-          results.push(result);
-        }
-      }
-
-      // Check if any operations failed
-      const failedResults = results.filter((result) => result?.message || result?.Error);
-      
-      if (failedResults.length > 0) {
-        const errorMessages = failedResults.map((result) => 
-          result?.message || "Failed to add ingredient"
-        );
-        setErrors(errorMessages);
-      } else {
-        // Success - form will redirect via the action
-        setErrors([]);
-      }
-    });
-  };
-
-  const getSelectedIngredient = (ingredientId: string) => {
-    return ingredients.find((ing) => ing.id === ingredientId);
-  };
+export const CreateIngredientForm = () => {
+  const [state, formAction] = useActionState(saveIngredient, initialState);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">
-        Add Ingredients to Recipe
-      </h2>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Recipe Selection */}
+    <div className="max-w-md mx-auto mt-8">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Create New Ingredient</h2>
+      
+      <form action={formAction} className="space-y-4">
+        {/* Name Field */}
         <div>
-          <label htmlFor="recipe" className="block text-sm font-medium text-gray-700 mb-2">
-            Select Recipe
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+            Name
           </label>
-          <select
-            id="recipe"
-            value={selectedRecipeId}
-            onChange={(e) => setSelectedRecipeId(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option value="">Choose a recipe...</option>
-            {recipes.map((recipe) => (
-              <option key={recipe.id} value={recipe.id}>
-                {recipe.name}
-              </option>
-            ))}
-          </select>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Enter ingredient name"
+          />
+          {state?.Error?.name && (
+            <p className="mt-1 text-sm text-red-600">{state.Error.name[0]}</p>
+          )}
         </div>
 
-        {/* Ingredients Section */}
+        {/* Price Field */}
         <div>
-          <div className="flex justify-between items-center mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Ingredients
-            </label>
-            <button
-              type="button"
-              onClick={addIngredientEntry}
-              className="px-3 py-1 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              + Add Ingredient
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {ingredientEntries.map((entry, index) => {
-              const selectedIngredient = getSelectedIngredient(entry.ingredientId);
-              
-              return (
-                <div key={index} className="flex gap-3 items-end p-4 border border-gray-200 rounded-md">
-                  <div className="flex-1">
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
-                      Ingredient
-                    </label>
-                    <select
-                      value={entry.ingredientId}
-                      onChange={(e) =>
-                        updateIngredientEntry(index, "ingredientId", e.target.value)
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
-                    >
-                      <option value="">Choose ingredient...</option>
-                      {ingredients.map((ingredient) => (
-                        <option key={ingredient.id} value={ingredient.id}>
-                          {ingredient.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="w-32">
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
-                      Amount {selectedIngredient ? `(${selectedIngredient.measureUnit})` : ''}
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0.01"
-                      value={entry.amount || ""}
-                      onChange={(e) =>
-                        updateIngredientEntry(index, "amount", parseFloat(e.target.value) || 0)
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="0"
-                      required
-                    />
-                  </div>
-
-                  {ingredientEntries.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeIngredientEntry(index)}
-                      className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
+            Price
+          </label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            step="0.01"
+            className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Enter price"
+          />
+          {state?.Error?.price && (
+            <p className="mt-1 text-sm text-red-600">{state.Error.price[0]}</p>
+          )}
         </div>
 
-        {/* Error Messages */}
-        {errors.length > 0 && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="text-red-800 font-medium mb-2">Please fix the following errors:</div>
-            <ul className="list-disc list-inside text-red-700 text-sm space-y-1">
-              {errors.map((error, index) => (
-                <li key={index}>{error}</li>
-              ))}
-            </ul>
-          </div>
+        {/* Measure Unit Field */}
+        <div>
+          <label htmlFor="measureUnit" className="block text-sm font-medium text-gray-700 mb-1">
+            Measure Unit
+          </label>
+          <input
+            type="text"
+            id="measureUnit"
+            name="measureUnit"
+            className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="e.g., kg, lbs, cups"
+          />
+          {state?.Error?.measureUnit && (
+            <p className="mt-1 text-sm text-red-600">{state.Error.measureUnit[0]}</p>
+          )}
+        </div>
+
+        {/* Base Amount Field */}
+        <div>
+          <label htmlFor="baseAmount" className="block text-sm font-medium text-gray-700 mb-1">
+            Base Amount
+          </label>
+          <input
+            type="number"
+            id="baseAmount"
+            name="baseAmount"
+            step="0.01"
+            className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Enter base amount"
+          />
+          {state?.Error?.baseAmount && (
+            <p className="mt-1 text-sm text-red-600">{state.Error.baseAmount[0]}</p>
+          )}
+        </div>
+
+        {/* General Error Message */}
+        {state?.message && (
+          <p className="text-sm text-red-600 bg-red-50 p-3 rounded-sm border border-red-200">
+            {state.message}
+          </p>
         )}
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isPending}
-          className={`w-full px-5 py-3 bg-blue-700 text-white font-medium rounded-sm text-sm text-center hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            isPending ? "opacity-50 cursor-progress" : ""
-          }`}
-        >
-          {isPending ? "Adding Ingredients..." : "Add Ingredients to Recipe"}
-        </button>
+        <div className="pt-4">
+          <SubmitButton label="Create Ingredient" />
+        </div>
       </form>
     </div>
   );
-}
+};
