@@ -64,7 +64,7 @@ const RecipeTable: React.FC = async () => {
           <h2 className="text-2xl font-bold text-gray-900">Recipes</h2>
           <p className="text-gray-600 mt-1">Manage your recipe collection</p>
         </div>
-        <CreateButton targetEntity="recipe" />
+        <CreateButton targetEntity="recipes" />
       </div>
 
       {/* Desktop Table View */}

@@ -35,7 +35,7 @@ const IngredientTable: React.FC = async () => {
           <h2 className="text-2xl font-bold text-gray-900">Ingredients</h2>
           <p className="text-gray-600 mt-1">Manage your ingredient inventory</p>
         </div>
-        <CreateButton targetEntity="ingredient" />
+        <CreateButton targetEntity="ingredients" />
       </div>
 
       {/* Desktop Table View */}
