@@ -124,7 +124,7 @@ const RecipeTable: React.FC = async () => {
                   </td>
                   <td className="py-4 px-6">
                     <div className="flex justify-center gap-2">
-                      <EditButton id={recipe.id} entityType="recipe" />
+                      <EditButton id={recipe.id} entityType="recipes" />
                       <DeleteButton
                         id={recipe.id}
                         onDelete={deleteRecipe}
@@ -158,7 +158,7 @@ const RecipeTable: React.FC = async () => {
                 </div>
               </div>
               <div className="flex gap-2 ml-4">
-                <EditButton id={recipe.id} entityType="recipe" />
+                <EditButton id={recipe.id} entityType="recipes" />
                 <DeleteButton
                   id={recipe.id}
                   onDelete={deleteRecipe}
