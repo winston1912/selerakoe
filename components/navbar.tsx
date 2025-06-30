@@ -15,7 +15,7 @@ const Navbar = () => {
   const navItems = [
     { name: 'Ingredients', href: '/ingredients' },
     { name: 'Recipes', href: '/recipes' },
-    { name: 'Recipe-ingredients', href: '/recipe-ingredients' }
+    { name: 'Recipe-ingredient', href: '/recipe-ingredients' }
   ];
 
   const toggleMenu = () => {
