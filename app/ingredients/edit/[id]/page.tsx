@@ -2,16 +2,22 @@ import { EditIngredientForm } from "@/components/editForm/editIngredientForm";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
-// This interface correctly defines the shape of the params for this page.
+// Define the interface for the resolved params
+interface Params {
+  id: string;
+}
+
+// Update the props interface to handle Promise
 interface EditIngredientPageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<Params>;
 }
 
 export default async function EditIngredientPage({ params }: EditIngredientPageProps) {
+  // Await the params to resolve the Promise
+  const { id } = await params;
+
   const ingredient = await prisma.ingredient.findUnique({
-    where: { id: params.id },
+    where: { id },
   });
 
   if (!ingredient) {
@@ -20,7 +26,6 @@ export default async function EditIngredientPage({ params }: EditIngredientPageP
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Pass the fetched ingredient data to the client component */}
       <EditIngredientForm ingredient={ingredient} />
     </div>
   );
