@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Ingredient {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  price       Float    // Price in the smallest currency unit (e.g., cents, rupiah)
+  measureUnit String   // e.g., "gram", "ml", "piece"
+  baseAmount  Float    // The amount for the given price (e.g., 1000 for 1000 grams)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationship to recipe ingredients
+  recipeIngredients RecipeIngredient[]
+
+  @@map("ingredients")
+}
+
+model Recipe {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationship to recipe ingredients (junction table)
+  recipeIngredients RecipeIngredient[]
+
+  @@map("recipes")
+}
+
+// Junction table to handle many-to-many relationship between Recipe and Ingredient
+// This allows storing the specific amount of each ingredient used in a recipe
+model RecipeIngredient {
+  id           String @id @default(cuid())
+  recipeId     String
+  ingredientId String
+  amount       Float  // Amount of ingredient used in this recipe
+
+  // Relations
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  // Ensure unique combination of recipe and ingredient
+  @@unique([recipeId, ingredientId])
+  @@map("recipe_ingredients")
+}
