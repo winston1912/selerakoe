@@ -26,6 +26,12 @@ interface RecipeIngredient {
   ingredient: Ingredient;
 }
 
+interface GroupedRecipe {
+  recipe: Recipe;
+  ingredients: RecipeIngredient[];
+  totalCost: number;
+}
+
 const RecipeIngredientTable: React.FC = async () => {
   const recipeIngredients: RecipeIngredient[] = await getRecipeIngredients();
 
@@ -47,6 +53,24 @@ const RecipeIngredientTable: React.FC = async () => {
   const formatAmount = (amount: number, unit: string): string => {
     return `${amount} ${unit}`;
   };
+
+  // Group ingredients by recipe
+  const groupedRecipes: GroupedRecipe[] = recipeIngredients.reduce((acc, recipeIngredient) => {
+    const existingGroup = acc.find(group => group.recipe.id === recipeIngredient.recipeId);
+    
+    if (existingGroup) {
+      existingGroup.ingredients.push(recipeIngredient);
+      existingGroup.totalCost += calculateIngredientCost(recipeIngredient.ingredient, recipeIngredient.amount);
+    } else {
+      acc.push({
+        recipe: recipeIngredient.recipe,
+        ingredients: [recipeIngredient],
+        totalCost: calculateIngredientCost(recipeIngredient.ingredient, recipeIngredient.amount)
+      });
+    }
+    
+    return acc;
+  }, [] as GroupedRecipe[]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
@@ -72,26 +96,17 @@ const RecipeIngredientTable: React.FC = async () => {
                   Recipe
                 </th>
                 <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Ingredient
-                </th>
-                <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Amount Needed
-                </th>
-                <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Unit Price
+                  Ingredients
                 </th>
                 <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Total Cost
                 </th>
-                <th className="py-4 px-6 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Actions
-                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {recipeIngredients.map((recipeIngredient, index) => (
+              {groupedRecipes.map((group, index) => (
                 <tr
-                  key={recipeIngredient.id}
+                  key={group.recipe.id}
                   className="hover:bg-gray-50 transition-colors duration-150"
                 >
                   <td className="py-4 px-6 text-sm text-gray-500">
@@ -99,39 +114,41 @@ const RecipeIngredientTable: React.FC = async () => {
                   </td>
                   <td className="py-4 px-6">
                     <div className="text-sm font-medium text-gray-900">
-                      {recipeIngredient.recipe.name}
+                      {group.recipe.name}
                     </div>
                   </td>
                   <td className="py-4 px-6">
-                    <div className="text-sm font-medium text-gray-900">
-                      {recipeIngredient.ingredient.name}
+                    <div className="space-y-2">
+                      {group.ingredients.map((recipeIngredient) => (
+                        <div key={recipeIngredient.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-2">
+                          <div className="flex-1">
+                            <div className="text-sm font-medium text-gray-900">
+                              {recipeIngredient.ingredient.name}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {formatAmount(recipeIngredient.amount, recipeIngredient.ingredient.measureUnit)} • 
+                              {formatCurrency(recipeIngredient.ingredient.price / recipeIngredient.ingredient.baseAmount)} per {recipeIngredient.ingredient.measureUnit}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-900">
+                              {formatCurrency(calculateIngredientCost(recipeIngredient.ingredient, recipeIngredient.amount))}
+                            </span>
+                            <div className="flex gap-1">
+                              <EditButton id={recipeIngredient.id} entityType="recipe-ingredients" />
+                              <DeleteButton
+                                id={recipeIngredient.id}
+                                onDelete={deleteRecipeIngredient}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </td>
                   <td className="py-4 px-6">
-                    <div className="text-sm text-gray-900">
-                      {formatAmount(recipeIngredient.amount, recipeIngredient.ingredient.measureUnit)}
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="text-sm text-gray-900">
-                      {formatCurrency(recipeIngredient.ingredient.price / recipeIngredient.ingredient.baseAmount)}
-                      <span className="text-xs text-gray-500 ml-1">
-                        per {recipeIngredient.ingredient.measureUnit}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="text-sm font-medium text-gray-900">
-                      {formatCurrency(calculateIngredientCost(recipeIngredient.ingredient, recipeIngredient.amount))}
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex justify-center gap-2">
-                      <EditButton id={recipeIngredient.id} entityType="recipe-ingredients" />
-                      <DeleteButton
-                        id={recipeIngredient.id}
-                        onDelete={deleteRecipeIngredient}
-                      />
+                    <div className="text-lg font-bold text-gray-900">
+                      {formatCurrency(group.totalCost)}
                     </div>
                   </td>
                 </tr>
@@ -143,9 +160,9 @@ const RecipeIngredientTable: React.FC = async () => {
 
       {/* Mobile Card View */}
       <div className="lg:hidden space-y-4">
-        {recipeIngredients.map((recipeIngredient, index) => (
+        {groupedRecipes.map((group, index) => (
           <div
-            key={recipeIngredient.id}
+            key={group.recipe.id}
             className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-4"
           >
             {/* Header */}
@@ -157,65 +174,63 @@ const RecipeIngredientTable: React.FC = async () => {
                   </span>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {recipeIngredient.recipe.name}
+                      {group.recipe.name}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      {recipeIngredient.ingredient.name}
+                      {group.ingredients.length} ingredient{group.ingredients.length > 1 ? 's' : ''}
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="flex gap-2 ml-4">
-                <EditButton id={recipeIngredient.id} entityType="recipe-ingredients" />
-                <DeleteButton
-                  id={recipeIngredient.id}
-                  onDelete={deleteRecipeIngredient}
-                />
+              <div className="text-right">
+                <div className="text-lg font-bold text-gray-900">
+                  {formatCurrency(group.totalCost)}
+                </div>
+                <div className="text-xs text-gray-500">Total Cost</div>
               </div>
             </div>
 
-            {/* Details Grid */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount Needed
-                </dt>
-                <dd className="text-sm text-gray-900">
-                  {formatAmount(recipeIngredient.amount, recipeIngredient.ingredient.measureUnit)}
-                </dd>
-              </div>
-              <div className="space-y-1">
-                <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Unit Price
-                </dt>
-                <dd className="text-sm text-gray-900">
-                  {formatCurrency(recipeIngredient.ingredient.price / recipeIngredient.ingredient.baseAmount)}
-                  <span className="text-xs text-gray-500 block">
-                    per {recipeIngredient.ingredient.measureUnit}
-                  </span>
-                </dd>
-              </div>
-              <div className="col-span-2 space-y-1">
-                <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total Cost
-                </dt>
-                <dd className="text-lg font-semibold text-gray-900">
-                  {formatCurrency(calculateIngredientCost(recipeIngredient.ingredient, recipeIngredient.amount))}
-                </dd>
-              </div>
+            {/* Ingredients List */}
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-gray-700">Ingredients:</h4>
+              {group.ingredients.map((recipeIngredient) => (
+                <div key={recipeIngredient.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-gray-900">
+                      {recipeIngredient.ingredient.name}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {formatAmount(recipeIngredient.amount, recipeIngredient.ingredient.measureUnit)} • 
+                      {formatCurrency(recipeIngredient.ingredient.price / recipeIngredient.ingredient.baseAmount)} per {recipeIngredient.ingredient.measureUnit}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-900">
+                      {formatCurrency(calculateIngredientCost(recipeIngredient.ingredient, recipeIngredient.amount))}
+                    </span>
+                    <div className="flex gap-1">
+                      <EditButton id={recipeIngredient.id} entityType="recipe-ingredients" />
+                      <DeleteButton
+                        id={recipeIngredient.id}
+                        onDelete={deleteRecipeIngredient}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ))}
       </div>
 
       {/* Summary Card */}
-      {recipeIngredients.length > 0 && (
+      {groupedRecipes.length > 0 && (
         <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
           <h3 className="text-lg font-semibold text-blue-900 mb-4">Recipe Cost Summary</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
-                {new Set(recipeIngredients.map(ri => ri.recipeId)).size}
+                {groupedRecipes.length}
               </div>
               <div className="text-sm text-blue-700">Total Recipes</div>
             </div>
@@ -228,9 +243,7 @@ const RecipeIngredientTable: React.FC = async () => {
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
                 {formatCurrency(
-                  recipeIngredients.reduce((total, ri) => 
-                    total + calculateIngredientCost(ri.ingredient, ri.amount), 0
-                  )
+                  groupedRecipes.reduce((total, group) => total + group.totalCost, 0)
                 )}
               </div>
               <div className="text-sm text-blue-700">Total Cost</div>
@@ -240,7 +253,7 @@ const RecipeIngredientTable: React.FC = async () => {
       )}
 
       {/* Empty State */}
-      {recipeIngredients.length === 0 && (
+      {groupedRecipes.length === 0 && (
         <div className="text-center py-12">
           <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
             <svg

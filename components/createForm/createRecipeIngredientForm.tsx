@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { saveRecipeIngredient } from "@/lib/actions/recipeIngredientsAction";
+import { saveMultipleRecipeIngredients } from "@/lib/actions/recipeIngredientsAction";
 
 interface Ingredient {
   id: string;
@@ -98,28 +98,27 @@ export default function CreateRecipeIngredientForm({
     }
 
     startTransition(async () => {
-      const results = [];
+      const formData = new FormData();
+      formData.append("recipeId", selectedRecipeId);
       
-      for (const entry of ingredientEntries) {
+      // Add ingredients to form data
+      ingredientEntries.forEach((entry, index) => {
         if (entry.ingredientId && entry.amount > 0) {
-          const formData = new FormData();
-          formData.append("recipeId", selectedRecipeId);
-          formData.append("ingredientId", entry.ingredientId);
-          formData.append("amount", entry.amount.toString());
-
-          const result = await saveRecipeIngredient(null, formData);
-          results.push(result);
+          formData.append(`ingredients[${index}].ingredientId`, entry.ingredientId);
+          formData.append(`ingredients[${index}].amount`, entry.amount.toString());
         }
-      }
+      });
 
-      // Check if any operations failed
-      const failedResults = results.filter((result) => result?.message || result?.Error);
+      const result = await saveMultipleRecipeIngredients(null, formData);
       
-      if (failedResults.length > 0) {
-        const errorMessages = failedResults.map((result) => 
-          result?.message || "Failed to add ingredient"
-        );
-        setErrors(errorMessages);
+      if (result?.message || result?.Error) {
+        if (result.Error) {
+          // Handle validation errors
+          const errorMessages = Object.values(result.Error).flat();
+          setErrors(errorMessages);
+        } else {
+          setErrors([result.message]);
+        }
       } else {
         // Success - form will redirect via the action
         setErrors([]);
