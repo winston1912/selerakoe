@@ -3,6 +3,8 @@ import CreateRecipeIngredientForm from '@/components/createForm/createRecipeIngr
 import { getRecipe } from '@/lib/data/getRecipes';
 import { getIngredient } from '@/lib/data/getIngredients';
 
+export const dynamic = 'force-dynamic';
+
 const CreateRecipeIngredientPage = async () => {
   // Fetch both recipes and ingredients for the form dropdowns
   const [recipes, ingredients] = await Promise.all([
