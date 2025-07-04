@@ -206,8 +206,8 @@ export default function CreateRecipeIngredientForm({
                     </label>
                     <input
                       type="number"
-                      step="0.01"
-                      min="0.01"
+                      step="0.000001"
+                      min="0.000001"
                       value={entry.amount || ""}
                       onChange={(e) =>
                         updateIngredientEntry(index, "amount", parseFloat(e.target.value) || 0)
