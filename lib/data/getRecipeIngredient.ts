@@ -1,7 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/app/generated/prisma';
+import { unstable_noStore as noStore } from 'next/cache';
 
 export const getRecipeIngredients = async (query?: string, offset?: number, limit?: number) => {
+  // Prevent caching to ensure fresh data
+  noStore();
+  
   try {
     const where: Prisma.RecipeIngredientWhereInput = query
       ? {
@@ -15,17 +19,26 @@ export const getRecipeIngredients = async (query?: string, offset?: number, limi
         }
       : {};
 
-    const recipeIngredients = await prisma.recipeIngredient.findMany({
+    const queryOptions: any = {
       where,
-      skip: offset,
-      take: limit,
       orderBy: { recipe: { name: 'asc' } },
       include: {
         recipe: true,
         ingredient: true,
       },
-    });
+    };
 
+    // Only add skip/take if they are defined and valid
+    if (offset !== undefined && offset >= 0) {
+      queryOptions.skip = offset;
+    }
+    if (limit !== undefined && limit > 0) {
+      queryOptions.take = limit;
+    }
+
+    const recipeIngredients = await prisma.recipeIngredient.findMany(queryOptions);
+
+    console.log('Database query result:', recipeIngredients.length, 'recipe ingredients found');
     return recipeIngredients;
   } catch (error) {
     console.error('Error fetching recipe ingredients:', error);
@@ -34,6 +47,28 @@ export const getRecipeIngredients = async (query?: string, offset?: number, limi
     } else {
       throw new Error('Failed to fetch recipe ingredients: Unknown error');
     }
+  }
+};
+
+// Alternative function to get all recipe ingredients without parameters
+export const getAllRecipeIngredients = async () => {
+  // Prevent caching to ensure fresh data
+  noStore();
+  
+  try {
+    const recipeIngredients = await prisma.recipeIngredient.findMany({
+      orderBy: { recipe: { name: 'asc' } },
+      include: {
+        recipe: true,
+        ingredient: true,
+      },
+    });
+
+    console.log('All recipe ingredients fetched:', recipeIngredients.length);
+    return recipeIngredients;
+  } catch (error) {
+    console.error('Error fetching all recipe ingredients:', error);
+    throw new Error('Failed to fetch recipe ingredients');
   }
 };
 

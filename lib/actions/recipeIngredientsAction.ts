@@ -31,14 +31,16 @@ export const saveRecipeIngredient = async (prevState: any, formData: FormData) =
   }
 
   try {
-    await prisma.recipeIngredient.create({
+    const result = await prisma.recipeIngredient.create({
       data: {
         recipeId: validatedFields.data.recipeId,
         ingredientId: validatedFields.data.ingredientId,
         amount: validatedFields.data.amount,
       },
     });
+    console.log('Recipe ingredient created successfully:', result);
   } catch (error) {
+    console.error('Error creating recipe ingredient:', error);
     // Handle unique constraint violation
     if (error instanceof Error && error.message.includes("Unique constraint")) {
       return { message: "This ingredient is already added to the recipe" };
@@ -46,7 +48,10 @@ export const saveRecipeIngredient = async (prevState: any, formData: FormData) =
     return { message: "Failed to add ingredient to recipe" };
   }
 
+  // Revalidate all relevant paths
   revalidatePath("/recipes");
+  revalidatePath("/recipe-ingredients");
+  revalidatePath("/");
   redirect("/recipes");
 };
 
@@ -84,18 +89,23 @@ export const saveMultipleRecipeIngredients = async (prevState: any, formData: Fo
 
   try {
     // Use a transaction to ensure all ingredients are saved together
-    await prisma.$transaction(async (prisma) => {
+    const result = await prisma.$transaction(async (prisma) => {
+      const createdIngredients = [];
       for (const ingredient of validatedFields.data.ingredients) {
-        await prisma.recipeIngredient.create({
+        const created = await prisma.recipeIngredient.create({
           data: {
             recipeId: validatedFields.data.recipeId,
             ingredientId: ingredient.ingredientId,
             amount: ingredient.amount,
           },
         });
+        createdIngredients.push(created);
       }
+      return createdIngredients;
     });
+    console.log('Multiple recipe ingredients created successfully:', result);
   } catch (error) {
+    console.error('Error creating multiple recipe ingredients:', error);
     // Handle unique constraint violation
     if (error instanceof Error && error.message.includes("Unique constraint")) {
       return { message: "One or more ingredients are already added to this recipe" };
@@ -103,7 +113,10 @@ export const saveMultipleRecipeIngredients = async (prevState: any, formData: Fo
     return { message: "Failed to add ingredients to recipe" };
   }
 
+  // Revalidate all relevant paths
   revalidatePath("/recipes");
+  revalidatePath("/recipe-ingredients");
+  revalidatePath("/");
   redirect("/recipes");
 };
 
@@ -123,7 +136,7 @@ export const updateRecipeIngredient = async (
   }
 
   try {
-    await prisma.recipeIngredient.update({
+    const result = await prisma.recipeIngredient.update({
       data: {
         recipeId: validatedFields.data.recipeId,
         ingredientId: validatedFields.data.ingredientId,
@@ -131,7 +144,9 @@ export const updateRecipeIngredient = async (
       },
       where: { id },
     });
+    console.log('Recipe ingredient updated successfully:', result);
   } catch (error) {
+    console.error('Error updating recipe ingredient:', error);
     // Handle unique constraint violation
     if (error instanceof Error && error.message.includes("Unique constraint")) {
       return { message: "This ingredient is already added to the recipe" };
@@ -139,20 +154,32 @@ export const updateRecipeIngredient = async (
     return { message: "Failed to update recipe ingredient" };
   }
 
+  // Revalidate all relevant paths
   revalidatePath("/recipes");
+  revalidatePath("/recipe-ingredients");
+  revalidatePath("/");
   redirect("/recipes");
 };
 
-export const deleteRecipeIngredient = async (id: string) => {
+export const deleteRecipeIngredient = async (id: string): Promise<{ message: string; } | undefined> => {
+  console.log('Attempting to delete recipe ingredient with ID:', id);
+  
   try {
-    await prisma.recipeIngredient.delete({
+    const result = await prisma.recipeIngredient.delete({
       where: { id },
     });
+    console.log('Recipe ingredient deleted successfully:', result);
+    
+    // Revalidate all relevant paths
+    revalidatePath("/recipes");
+    revalidatePath("/recipe-ingredients");
+    revalidatePath("/");
+    
+    return undefined; // Success case - return undefined
   } catch (error) {
+    console.error('Error deleting recipe ingredient:', error);
     return { message: "Failed to remove ingredient from recipe" };
   }
-
-  revalidatePath("/recipes");
 };
 
 // Additional utility function to remove ingredient from recipe by recipeId and ingredientId
@@ -160,8 +187,10 @@ export const removeIngredientFromRecipe = async (
   recipeId: string,
   ingredientId: string
 ) => {
+  console.log('Attempting to remove ingredient from recipe:', { recipeId, ingredientId });
+  
   try {
-    await prisma.recipeIngredient.delete({
+    const result = await prisma.recipeIngredient.delete({
       where: {
         recipeId_ingredientId: {
           recipeId,
@@ -169,11 +198,18 @@ export const removeIngredientFromRecipe = async (
         },
       },
     });
+    console.log('Ingredient removed from recipe successfully:', result);
+    
+    // Revalidate all relevant paths
+    revalidatePath("/recipes");
+    revalidatePath("/recipe-ingredients");
+    revalidatePath("/");
+    
+    return { success: true };
   } catch (error) {
+    console.error('Error removing ingredient from recipe:', error);
     return { message: "Failed to remove ingredient from recipe" };
   }
-
-  revalidatePath("/recipes");
 };
 
 // Utility function to update just the amount for an existing recipe ingredient
@@ -186,8 +222,10 @@ export const updateRecipeIngredientAmount = async (
     return { message: "Amount must be positive" };
   }
 
+  console.log('Attempting to update recipe ingredient amount:', { recipeId, ingredientId, amount });
+
   try {
-    await prisma.recipeIngredient.update({
+    const result = await prisma.recipeIngredient.update({
       data: { amount },
       where: {
         recipeId_ingredientId: {
@@ -196,9 +234,16 @@ export const updateRecipeIngredientAmount = async (
         },
       },
     });
+    console.log('Recipe ingredient amount updated successfully:', result);
+    
+    // Revalidate all relevant paths
+    revalidatePath("/recipes");
+    revalidatePath("/recipe-ingredients");
+    revalidatePath("/");
+    
+    return { success: true };
   } catch (error) {
+    console.error('Error updating ingredient amount:', error);
     return { message: "Failed to update ingredient amount" };
   }
-
-  revalidatePath("/recipes");
 };

@@ -1,7 +1,8 @@
 import React from 'react';
-import { getRecipeIngredients } from '@/lib/data/getRecipeIngredient';
+import { getAllRecipeIngredients } from '@/lib/data/getRecipeIngredient';
 import { CreateButton, DeleteButton, EditButton } from '../button';
 import { deleteRecipeIngredient } from '@/lib/actions/recipeIngredientsAction';
+import { unstable_noStore as noStore } from 'next/cache';
 
 // Type definitions based on your Prisma schema
 interface Ingredient {
@@ -33,7 +34,15 @@ interface GroupedRecipe {
 }
 
 const RecipeIngredientTable: React.FC = async () => {
-  const recipeIngredients: RecipeIngredient[] = await getRecipeIngredients();
+  // Prevent caching to ensure fresh data
+  noStore();
+  
+  // Use the new getAllRecipeIngredients function for better reliability
+  const recipeIngredients: RecipeIngredient[] = await getAllRecipeIngredients();
+  
+  // Add debugging log
+  console.log('RecipeIngredientTable - Fetched ingredients:', recipeIngredients.length);
+  console.log('RecipeIngredientTable - Sample data:', recipeIngredients.slice(0, 2));
 
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('id-ID', {
@@ -54,6 +63,8 @@ const RecipeIngredientTable: React.FC = async () => {
     return `${amount} ${unit}`;
   };
 
+
+
   // Group ingredients by recipe
   const groupedRecipes: GroupedRecipe[] = recipeIngredients.reduce((acc, recipeIngredient) => {
     const existingGroup = acc.find(group => group.recipe.id === recipeIngredient.recipeId);
@@ -72,6 +83,9 @@ const RecipeIngredientTable: React.FC = async () => {
     return acc;
   }, [] as GroupedRecipe[]);
 
+  // Add debugging for grouped recipes
+  console.log('RecipeIngredientTable - Grouped recipes:', groupedRecipes.length);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Header Section */}
@@ -79,6 +93,12 @@ const RecipeIngredientTable: React.FC = async () => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Recipe Ingredients</h2>
           <p className="text-gray-600 mt-1">Manage ingredient quantities for each recipe</p>
+          {/* Add debug info in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <p className="text-xs text-blue-600 mt-1">
+              Debug: {recipeIngredients.length} raw ingredients, {groupedRecipes.length} grouped recipes
+            </p>
+          )}
         </div>
         <CreateButton targetEntity="recipe-ingredient" />
       </div>
