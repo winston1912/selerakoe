@@ -61,8 +61,8 @@ const RecipeTable: React.FC = async () => {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Recipes</h2>
-          <p className="text-gray-600 mt-1">Manage your recipe collection</p>
+          <h2 className="text-2xl font-bold text-gray-900">Resep</h2>
+          <p className="text-gray-600 mt-1">Kelola koleksi resep Anda</p>
         </div>
         <CreateButton targetEntity="recipes" />
       </div>
@@ -77,10 +77,10 @@ const RecipeTable: React.FC = async () => {
                   #
                 </th>
                 <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Name
+                  Nama
                 </th>
                 <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Ingredients
+                  Bahan
                 </th>
                 <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Created At
@@ -89,7 +89,7 @@ const RecipeTable: React.FC = async () => {
                   Updated At
                 </th>
                 <th className="py-4 px-6 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Actions
+                  Tindakan
                 </th>
               </tr>
             </thead>
@@ -109,7 +109,7 @@ const RecipeTable: React.FC = async () => {
                   </td>
                   <td className="py-4 px-6">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      {getIngredientCount(recipe.recipeIngredients)} ingredients
+                      {getIngredientCount(recipe.recipeIngredients)} Bahan
                     </span>
                   </td>
                   <td className="py-4 px-6">
@@ -170,11 +170,11 @@ const RecipeTable: React.FC = async () => {
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-1">
                 <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ingredients
+                  Bahan
                 </dt>
                 <dd>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    {getIngredientCount(recipe.recipeIngredients)} ingredients
+                    {getIngredientCount(recipe.recipeIngredients)} Bahan
                   </span>
                 </dd>
               </div>
@@ -220,10 +220,10 @@ const RecipeTable: React.FC = async () => {
             </svg>
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No recipes found
+            Tidak ada resep yang ditembukan
           </h3>
           <p className="text-gray-500">
-            Get started by creating your first recipe.
+            Mulailah dengan membuat resep pertama Anda.
           </p>
         </div>
       )}

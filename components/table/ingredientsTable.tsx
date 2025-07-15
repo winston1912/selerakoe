@@ -32,8 +32,8 @@ const IngredientTable: React.FC = async () => {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Ingredients</h2>
-          <p className="text-gray-600 mt-1">Manage your ingredient inventory</p>
+          <h2 className="text-2xl font-bold text-gray-900">Bahan</h2>
+          <p className="text-gray-600 mt-1">Kelola inventaris bahan Anda</p>
         </div>
         <CreateButton targetEntity="ingredients" />
       </div>
@@ -48,22 +48,22 @@ const IngredientTable: React.FC = async () => {
                   #
                 </th>
                 <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Name
+                  Nama
                 </th>
                 <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Price
+                  Harga
                 </th>
                 <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Base Amount
+                  Jumlah Dasar
                 </th>
                 <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Unit
+                  Satuan
                 </th>
                 <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Price per Unit
+                  Harga per satuan
                 </th>
                 <th className="py-4 px-6 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Actions
+                  Tindakan
                 </th>
               </tr>
             </thead>
@@ -157,7 +157,7 @@ const IngredientTable: React.FC = async () => {
               </div>
               <div className="space-y-1">
                 <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Base Amount
+                  Jumlah Dasar
                 </dt>
                 <dd className="text-sm text-gray-900">
                   {ingredient.baseAmount}
@@ -165,7 +165,7 @@ const IngredientTable: React.FC = async () => {
               </div>
               <div className="space-y-1">
                 <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Unit
+                  Satuan
                 </dt>
                 <dd>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -175,7 +175,7 @@ const IngredientTable: React.FC = async () => {
               </div>
               <div className="space-y-1">
                 <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Price per Unit
+                  Harga per Unit
                 </dt>
                 <dd className="text-sm font-semibold text-gray-900">
                   {calculatePricePerUnit(ingredient.price, ingredient.baseAmount)}
@@ -205,7 +205,7 @@ const IngredientTable: React.FC = async () => {
             </svg>
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No ingredients found
+            Tidak ada bahan
           </h3>
         </div>
       )}

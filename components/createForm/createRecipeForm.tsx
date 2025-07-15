@@ -12,13 +12,13 @@ export const CreateRecipeForm = () => {
 
   return (
     <div className="max-w-md mx-auto mt-8">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Create New Recipe</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Tambahkan Resep Baru</h2>
       
       <form action={formAction} className="space-y-4">
         {/* Name Field */}
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-            Recipe Name
+            Nama Resep
           </label>
           <input
             type="text"

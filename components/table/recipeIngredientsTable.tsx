@@ -91,8 +91,8 @@ const RecipeIngredientTable: React.FC = async () => {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Recipe Ingredients</h2>
-          <p className="text-gray-600 mt-1">Manage ingredient quantities for each recipe</p>
+          <h2 className="text-2xl font-bold text-gray-900">Bahan Masak dan Resep</h2>
+          <p className="text-gray-600 mt-1">Kelola jumlah bahan yang akan dipakai untuk setiap resep</p>
           {/* Add debug info in development */}
           {process.env.NODE_ENV === 'development' && (
             <p className="text-xs text-blue-600 mt-1">
@@ -113,13 +113,13 @@ const RecipeIngredientTable: React.FC = async () => {
                   #
                 </th>
                 <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Recipe
+                  Resep
                 </th>
                 <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Ingredients
+                  Bahan
                 </th>
                 <th className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Total Cost
+                  Total Biaya
                 </th>
               </tr>
             </thead>
@@ -197,7 +197,7 @@ const RecipeIngredientTable: React.FC = async () => {
                       {group.recipe.name}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      {group.ingredients.length} ingredient{group.ingredients.length > 1 ? 's' : ''}
+                      {group.ingredients.length} Bahan{group.ingredients.length > 1 ? 's' : ''}
                     </p>
                   </div>
                 </div>
@@ -206,13 +206,13 @@ const RecipeIngredientTable: React.FC = async () => {
                 <div className="text-lg font-bold text-gray-900">
                   {formatCurrency(group.totalCost)}
                 </div>
-                <div className="text-xs text-gray-500">Total Cost</div>
+                <div className="text-xs text-gray-500">Total Biaya</div>
               </div>
             </div>
 
             {/* Ingredients List */}
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-700">Ingredients:</h4>
+              <h4 className="text-sm font-medium text-gray-700">Bahan:</h4>
               {group.ingredients.map((recipeIngredient) => (
                 <div key={recipeIngredient.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
                   <div className="flex-1">
@@ -246,19 +246,19 @@ const RecipeIngredientTable: React.FC = async () => {
       {/* Summary Card */}
       {groupedRecipes.length > 0 && (
         <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
-          <h3 className="text-lg font-semibold text-blue-900 mb-4">Recipe Cost Summary</h3>
+          <h3 className="text-lg font-semibold text-blue-900 mb-4">Ringkasan Biaya Resep</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
                 {groupedRecipes.length}
               </div>
-              <div className="text-sm text-blue-700">Total Recipes</div>
+              <div className="text-sm text-blue-700">Total Resep</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
                 {recipeIngredients.length}
               </div>
-              <div className="text-sm text-blue-700">Ingredient Entries</div>
+              <div className="text-sm text-blue-700">Entri Bahan</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
@@ -266,7 +266,7 @@ const RecipeIngredientTable: React.FC = async () => {
                   groupedRecipes.reduce((total, group) => total + group.totalCost, 0)
                 )}
               </div>
-              <div className="text-sm text-blue-700">Total Cost</div>
+              <div className="text-sm text-blue-700">Total Biaya</div>
             </div>
           </div>
         </div>
@@ -291,10 +291,10 @@ const RecipeIngredientTable: React.FC = async () => {
             </svg>
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No recipe ingredients found
+            Tidak menemukan bahan dan resep
           </h3>
           <p className="text-gray-500">
-            Start by adding ingredients to your recipes.
+            Mulailah dengan menambahkan bahan-bahan ke resep Anda.
           </p>
         </div>
       )}

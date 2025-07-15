@@ -26,13 +26,13 @@ export const EditIngredientForm = ({ ingredient }: EditIngredientFormProps) => {
 
   return (
     <div className="max-w-md mx-auto mt-8">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Edit Ingredient</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Edit Detail Bahan</h2>
       
       <form action={formAction} className="space-y-4">
         {/* Name Field */}
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-            Name
+            Nama
           </label>
           <input
             type="text"
@@ -50,7 +50,7 @@ export const EditIngredientForm = ({ ingredient }: EditIngredientFormProps) => {
         {/* Price Field */}
         <div>
           <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-            Price
+            Harga
           </label>
           <input
             type="number"
@@ -69,7 +69,7 @@ export const EditIngredientForm = ({ ingredient }: EditIngredientFormProps) => {
         {/* Measure Unit Field */}
         <div>
           <label htmlFor="measureUnit" className="block text-sm font-medium text-gray-700 mb-1">
-            Measure Unit
+           Satuan Ukur
           </label>
           <input
             type="text"
@@ -87,7 +87,7 @@ export const EditIngredientForm = ({ ingredient }: EditIngredientFormProps) => {
         {/* Base Amount Field */}
         <div>
           <label htmlFor="baseAmount" className="block text-sm font-medium text-gray-700 mb-1">
-            Base Amount
+           Jumlah Dasar
           </label>
           <input
             type="number"

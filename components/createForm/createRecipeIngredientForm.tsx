@@ -133,14 +133,14 @@ export default function CreateRecipeIngredientForm({
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">
-        Add Ingredients to Recipe
+        Tambahkan bahan ke dalam resep
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Recipe Selection */}
         <div>
           <label htmlFor="recipe" className="block text-sm font-medium text-gray-700 mb-2">
-            Select Recipe
+            Pilih resep
           </label>
           <select
             id="recipe"
@@ -149,7 +149,7 @@ export default function CreateRecipeIngredientForm({
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           >
-            <option value="">Choose a recipe...</option>
+            <option value="">Pilih resep...</option>
             {recipes.map((recipe) => (
               <option key={recipe.id} value={recipe.id}>
                 {recipe.name}
@@ -162,14 +162,14 @@ export default function CreateRecipeIngredientForm({
         <div>
           <div className="flex justify-between items-center mb-4">
             <label className="block text-sm font-medium text-gray-700">
-              Ingredients
+              Bahan
             </label>
             <button
               type="button"
               onClick={addIngredientEntry}
               className="px-3 py-1 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              + Add Ingredient
+              + Tambahkan bahan
             </button>
           </div>
 
@@ -191,7 +191,7 @@ export default function CreateRecipeIngredientForm({
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     >
-                      <option value="">Choose ingredient...</option>
+                      <option value="">Pilih bahan...</option>
                       {ingredients.map((ingredient) => (
                         <option key={ingredient.id} value={ingredient.id}>
                           {ingredient.name}
@@ -202,7 +202,7 @@ export default function CreateRecipeIngredientForm({
 
                   <div className="w-32">
                     <label className="block text-xs font-medium text-gray-600 mb-1">
-                      Amount {selectedIngredient ? `(${selectedIngredient.measureUnit})` : ''}
+                      Jumlah {selectedIngredient ? `(${selectedIngredient.measureUnit})` : ''}
                     </label>
                     <input
                       type="number"
@@ -224,7 +224,7 @@ export default function CreateRecipeIngredientForm({
                       onClick={() => removeIngredientEntry(index)}
                       className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
                     >
-                      Remove
+                      Hapus
                     </button>
                   )}
                 </div>
@@ -236,7 +236,7 @@ export default function CreateRecipeIngredientForm({
         {/* Error Messages */}
         {errors.length > 0 && (
           <div className="bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="text-red-800 font-medium mb-2">Please fix the following errors:</div>
+            <div className="text-red-800 font-medium mb-2">Harap perbaiki kesalahan berikut:</div>
             <ul className="list-disc list-inside text-red-700 text-sm space-y-1">
               {errors.map((error, index) => (
                 <li key={index}>{error}</li>
